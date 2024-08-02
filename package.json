@@ -15,7 +15,7 @@
     },
     "private": true,
     "dependencies": {
-        "@sailpoint/connector-sdk": "github:sailpoint-oss/sp-connector-sdk-js#main",
+        "@sailpoint/connector-sdk": "^1.1.11",
         "axios": "^1.7.2",
         "axios-retry": "^4.4.1",
         "isc_file_connector": "file:",
