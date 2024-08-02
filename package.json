@@ -1,6 +1,6 @@
 {
     "name": "isc_file_connector",
-    "version": "0.1.0",
+    "version": "0.1.5",
     "main": "dist/index.js",
     "scripts": {
         "clean": "shx rm -rf ./dist",
