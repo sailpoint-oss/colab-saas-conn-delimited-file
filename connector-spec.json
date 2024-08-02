@@ -5,7 +5,6 @@
         "std:account:list",
         "std:account:read",
         "std:entitlement:list",
-        "std:entitlement:read",
         "std:account:update",
         "std:account:create",
         "std:account:enable",
@@ -61,15 +60,27 @@
         }
     ],
     "accountSchema": {
-        "displayAttribute": "accountID",
-        "identityAttribute": "accountID",
-        "attributes": [
-            {
-                "name": "accountID",
-                "type": "string",
-                "description": "Account ID from the source"
-            }
-        ]
+        "displayAttribute": "",
+        "identityAttribute": "",
+        "attributes": []
     },
-    "entitlementSchemas": []
+    "entitlementSchemas": [
+        {
+            "type": "group",
+            "displayAttribute": "name",
+            "identityAttribute": "id",
+            "attributes": [
+                {
+                    "name": "id",
+                    "type": "string",
+                    "description": "Unique ID of the group (ex. admin)"
+                },
+                {
+                    "name": "name",
+                    "type": "string",
+                    "description": "The display name of the group (ex. Admin)"
+                }
+            ]
+        }
+    ]
 }

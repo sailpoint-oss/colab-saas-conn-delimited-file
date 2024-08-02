@@ -19,6 +19,8 @@ import {
     StdAccountEnableOutput,
     StdAccountDisableInput,
     StdAccountDisableOutput,
+    StdAccountUpdateInput,
+    StdAccountUpdateOutput,
 } from '@sailpoint/connector-sdk'
 import { MyClient } from './my-client'
 
@@ -90,16 +92,14 @@ export const connector = async () => {
 
         .stdEntitlementList(
             async (context: Context, input: StdEntitlementListInput, res: Response<StdEntitlementListOutput>) => {
+                logger.info(`stdEntitlementList input: ${JSON.stringify(input)}`)
                 const entitlements = await myClient.getAllEntitlements()
                 for (const entitlement of entitlements) {
                     res.send({
-                        type: 'groups',
-                        identity: entitlement.name,
-                        uuid: entitlement.value,
-                        attributes: {
-                            id: entitlement.name,
-                            value: entitlement.value,
-                        },
+                        type: 'group',
+                        identity: entitlement.value,
+                        uuid: entitlement.name,
+                        attributes: entitlement.attributes
                     })
                 }
                 logger.info(`stdEntitlementList sent ${entitlements.length} entitlements`)
@@ -183,10 +183,76 @@ export const connector = async () => {
                 res.send(output)
             }
         )
-        .stdAccountUpdate(async (context: Context, input: any, res: Response<any>) => {
-            res.send({})
-        })
+        .stdAccountUpdate(
+            async (context: Context, input: StdAccountUpdateInput, res: Response<StdAccountUpdateOutput>) => {
+                logger.info(`stdAccountUpdate input: ${JSON.stringify(input)}`)
 
+                // Get the current account state
+                let account = await myClient.getAccount(input.identity)
+                let updatedAttributes: Record<string, any> = { ...account.attributes }
+
+                // Process changes
+                for (const change of input.changes) {
+                    switch (change.op) {
+                        case 'Set':
+                            updatedAttributes[change.attribute] = change.value
+                            break
+                        case 'Add':
+                            if (Array.isArray(updatedAttributes[change.attribute])) {
+                                if (Array.isArray(change.value)) {
+                                    updatedAttributes[change.attribute] = [
+                                        ...new Set([...updatedAttributes[change.attribute], ...change.value]),
+                                    ]
+                                } else {
+                                    if (!updatedAttributes[change.attribute].includes(change.value)) {
+                                        updatedAttributes[change.attribute].push(change.value)
+                                    }
+                                }
+                            } else {
+                                logger.warn(`Cannot add to non-array attribute: ${change.attribute}`)
+                            }
+                            break
+                        case 'Remove':
+                            if (Array.isArray(updatedAttributes[change.attribute])) {
+                                if (Array.isArray(change.value)) {
+                                    updatedAttributes[change.attribute] = updatedAttributes[change.attribute].filter(
+                                        (item: any) => !change.value.includes(item)
+                                    )
+                                } else {
+                                    updatedAttributes[change.attribute] = updatedAttributes[change.attribute].filter(
+                                        (item: any) => item !== change.value
+                                    )
+                                }
+                            } else {
+                                updatedAttributes[change.attribute] = null
+                            }
+                            break
+                        default:
+                            logger.warn(`Unknown operation: ${change.op}`)
+                    }
+                }
+
+                // Ensure all schema attributes are included, even if they weren't changed
+                for (const attribute of schemaAttributes) {
+                    if (!(attribute in updatedAttributes)) {
+                        updatedAttributes[attribute] = account.attributes[attribute]
+                    }
+                }
+
+                // Update the account on the target system
+                await myClient.updateAccount(input.identity, updatedAttributes)
+
+                // Prepare the response
+                const response = {
+                    identity: account.attributes[identityAttribute],
+                    uuid: account.attributes[displayAttribute],
+                    attributes: updatedAttributes,
+                }
+
+                res.send(response)
+                logger.info(`Account updated successfully on target system: ${JSON.stringify(response)}`)
+            }
+        )
         .stdAccountEnable(
             async (context: Context, input: StdAccountEnableInput, res: Response<StdAccountEnableOutput>) => {
                 const account = await myClient.enableAccount(input.identity)

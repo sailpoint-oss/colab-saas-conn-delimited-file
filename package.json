@@ -15,9 +15,10 @@
     },
     "private": true,
     "dependencies": {
-        "@sailpoint/connector-sdk": "^1.1.11",
+        "@sailpoint/connector-sdk": "github:sailpoint-oss/sp-connector-sdk-js#main",
         "axios": "^1.7.2",
         "axios-retry": "^4.4.1",
+        "isc_file_connector": "file:",
         "sailpoint-api-client": "^1.3.6"
     },
     "devDependencies": {
@@ -27,7 +28,7 @@
         "jest": "^27.0.6",
         "shx": "^0.3.3",
         "ts-jest": "^27.0.5",
-        "typescript": "4.3.5"
+        "typescript": "^4.3.5"
     },
     "jest": {
         "preset": "ts-jest",
