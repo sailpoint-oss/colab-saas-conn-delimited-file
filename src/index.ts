@@ -21,6 +21,7 @@ import {
     StdAccountDisableOutput,
     StdAccountUpdateInput,
     StdAccountUpdateOutput,
+    Attributes,
 } from '@sailpoint/connector-sdk'
 import { MyClient } from './my-client'
 
@@ -96,10 +97,10 @@ export const connector = async () => {
                 const entitlements = await myClient.getAllEntitlements()
                 for (const entitlement of entitlements) {
                     res.send({
-                        type: 'group',
+                        type: input.type,
                         identity: entitlement.value,
                         uuid: entitlement.name,
-                        attributes: entitlement.attributes
+                        attributes: entitlement.attributes as Attributes
                     })
                 }
                 logger.info(`stdEntitlementList sent ${entitlements.length} entitlements`)

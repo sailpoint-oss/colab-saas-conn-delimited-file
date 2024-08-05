@@ -63,24 +63,5 @@
         "displayAttribute": "",
         "identityAttribute": "",
         "attributes": []
-    },
-    "entitlementSchemas": [
-        {
-            "type": "group",
-            "displayAttribute": "name",
-            "identityAttribute": "id",
-            "attributes": [
-                {
-                    "name": "id",
-                    "type": "string",
-                    "description": "Unique ID of the group (ex. admin)"
-                },
-                {
-                    "name": "name",
-                    "type": "string",
-                    "description": "The display name of the group (ex. Admin)"
-                }
-            ]
-        }
-    ]
+    }
 }
