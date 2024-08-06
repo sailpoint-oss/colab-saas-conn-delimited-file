@@ -5,7 +5,6 @@
         "std:account:list",
         "std:account:read",
         "std:entitlement:list",
-        "std:entitlement:read",
         "std:account:update",
         "std:account:create",
         "std:account:enable",
@@ -61,15 +60,8 @@
         }
     ],
     "accountSchema": {
-        "displayAttribute": "accountID",
-        "identityAttribute": "accountID",
-        "attributes": [
-            {
-                "name": "accountID",
-                "type": "string",
-                "description": "Account ID from the source"
-            }
-        ]
-    },
-    "entitlementSchemas": []
+        "displayAttribute": "",
+        "identityAttribute": "",
+        "attributes": []
+    }
 }

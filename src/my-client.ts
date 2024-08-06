@@ -9,6 +9,7 @@ import {
     EntitlementsBetaApi,
     SourcesApi,
     JsonPatchOperationOpEnum,
+    AccountAttributes,
 } from 'sailpoint-api-client'
 
 const TOKEN_URL_PATH = '/oauth/token'
@@ -136,6 +137,18 @@ export class MyClient {
         return (await api.createAccount(createAccountPayload)).data
     }
 
+    async updateAccount(identity: string, attributes: Record<string, any>): Promise<any> {
+        const api = new AccountsApi(this.config)
+        const filters1 = `sourceId eq "${this.sourceID}" and nativeIdentity eq "${identity}"`
+        const response = await api.listAccounts({ filters: filters1 })
+        const accountId = (await response).data[0].id as string
+        const accountAttributes: AccountAttributes = {
+            attributes: attributes
+        };
+        logger.info(`Updating account ${accountId} with attributes ${JSON.stringify(accountAttributes)}`)
+        return (await api.putAccount({ id: accountId, accountAttributes })).data;
+    }
+
     async getAllEntitlements(): Promise<any[]> {
         const api = new EntitlementsBetaApi(this.config)
         const filters1 = `source.id eq "${this.sourceID}"`
@@ -158,7 +171,7 @@ export class MyClient {
                     attributes: [
                         ...(schema.attributes?.map((attr) => ({
                             name: attr.name,
-                            description: attr.description,
+                            description: attr.description || attr.name, // Use attribute name if description is null
                             type: attr.type?.toLowerCase(),
                             ...(attr.isMulti && { multi: attr.isMulti }),
                             ...(attr.isEntitlement && { entitlement: attr.isEntitlement }),
