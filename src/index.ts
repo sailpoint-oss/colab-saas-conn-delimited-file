@@ -33,12 +33,6 @@ export const connector = async () => {
     // Use the vendor SDK, or implement own client as necessary, to initialize a client
     const myClient = new MyClient(config)
 
-    // Retrieve the schema
-    const schema = await myClient.getSchema()
-    const schemaAttributes = schema.attributes.map((attr: { name: string }) => attr.name)
-    const identityAttribute = schema.identityAttribute
-    const displayAttribute = schema.displayAttribute
-
     return createConnector()
         .stdTestConnection(
             async (context: Context, input: StdTestConnectionInput, res: Response<StdTestConnectionOutput>) => {
@@ -48,6 +42,10 @@ export const connector = async () => {
         )
         .stdAccountList(async (context: Context, input: StdAccountListInput, res: Response<StdAccountListOutput>) => {
             const accounts = await myClient.getAllAccounts()
+            const identityAttribute = input.schema?.identityAttribute as string
+            const displayAttribute = input.schema?.displayAttribute as string
+            const schemaAttributes = input.schema?.attributes?.map((attr: { name: string }) => attr.name) || []
+            
             for (const account of accounts) {
                 const accountAttributes: { [key: string]: any } = {}
 
@@ -72,6 +70,9 @@ export const connector = async () => {
             logger.info(`stdAccountRead input: ${JSON.stringify(input.key)}`)
             logger.info(`stdAccountRead input: ${input.identity}`)
             const account = await myClient.getAccount(input.identity)
+            const identityAttribute = input.schema?.identityAttribute as string
+            const displayAttribute = input.schema?.displayAttribute as string
+            const schemaAttributes = input.schema?.attributes?.map((attr: { name: string }) => attr.name) || []
             const accountAttributes: { [key: string]: any } = {}
 
             // Dynamically construct account attributes based on schema
@@ -187,6 +188,9 @@ export const connector = async () => {
         .stdAccountUpdate(
             async (context: Context, input: StdAccountUpdateInput, res: Response<StdAccountUpdateOutput>) => {
                 logger.info(`stdAccountUpdate input: ${JSON.stringify(input)}`)
+                const identityAttribute = input.schema?.identityAttribute as string
+                const displayAttribute = input.schema?.displayAttribute as string
+                const schemaAttributes = input.schema?.attributes?.map((attr: { name: string }) => attr.name) || []
 
                 // Get the current account state
                 let account = await myClient.getAccount(input.identity)
@@ -257,6 +261,9 @@ export const connector = async () => {
         .stdAccountEnable(
             async (context: Context, input: StdAccountEnableInput, res: Response<StdAccountEnableOutput>) => {
                 const account = await myClient.enableAccount(input.identity)
+                const identityAttribute = input.schema?.identityAttribute as string
+                const displayAttribute = input.schema?.displayAttribute as string
+                const schemaAttributes = input.schema?.attributes?.map((attr: { name: string }) => attr.name) || []
                 const accountAttributes: { [key: string]: any } = {}
 
                 // Dynamically construct account attributes based on schema
@@ -282,6 +289,9 @@ export const connector = async () => {
             async (context: Context, input: StdAccountDisableInput, res: Response<StdAccountDisableOutput>) => {
                 const account = await myClient.disableAccount(input.identity)
                 const accountAttributes: { [key: string]: any } = {}
+                const identityAttribute = input.schema?.identityAttribute as string
+                const displayAttribute = input.schema?.displayAttribute as string
+                const schemaAttributes = input.schema?.attributes?.map((attr: { name: string }) => attr.name) || []
 
                 // Dynamically construct account attributes based on schema
                 for (const attribute of schemaAttributes) {
